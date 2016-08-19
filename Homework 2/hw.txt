@@ -1,0 +1,31 @@
+2. First 11 popped items:
+             ROW   COLUMN
+              6     4
+              6     5
+              7     5
+              8     5
+              8     6
+              8     7
+              8     8
+              7     8
+              6     6
+              5     4
+              4     4
+
+4. First 11 popped items:
+             ROW   COLUMN
+              6     4
+              5     4
+              6     5
+              4     4
+              6     6
+              7     5
+              3     4
+              4     5
+              8     5
+              2     4
+              4     6
+
+The stack implementation travels forward in the sense that it will not restart from the starting point unless its current path is blocked. It will continually try to finish the maze in a one track direction since its a last in first out. It pops out its most recent pushes.
+
+The queue implementation checks each path and returns to the beginning (first in first out) to seek a different path after each walk. The queue makes certain to exhaust all possible directions from its starting point before moving forward. It pops out its oldest pushes.

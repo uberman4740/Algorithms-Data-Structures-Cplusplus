@@ -1,0 +1,144 @@
+// Dictionary.cpp
+
+#define _HAS_ITERATOR_DEBUGGING 0
+#define _SECURE_SCL 0
+#include "Dictionary.h"
+#include <string>
+#include <vector>
+#include <cctype>
+#include <algorithm>
+
+using namespace std;
+
+  // This class does the real work of the implementation.
+
+const size_t NBUCKETS = 49999;
+
+class DictionaryImpl
+{
+  public:
+    DictionaryImpl() {}
+    ~DictionaryImpl() {}
+    void insert(string word);
+    void lookup(string letters, void callback(const string&)) const;
+
+  private:
+    struct HashEntry
+    {
+        string key;
+        vector<string> words;
+        HashEntry(const string& k, const string& w)
+         : key(k)
+        {
+            words.push_back(w);
+        }
+    };
+
+    vector<HashEntry> m_bucket[NBUCKETS];
+
+    static size_t hash(const string& s);
+    static void removeNonLetters(string& s);
+};
+
+void DictionaryImpl::insert(string word)
+{
+    removeNonLetters(word);
+    if ( ! word.empty())
+    {
+        string key(word);
+        sort(key.begin(), key.end());
+        vector<HashEntry>& b = m_bucket[hash(key)];
+        for (size_t k = 0; k < b.size(); k++)
+        {
+            if (b[k].key == key)
+            {
+                b[k].words.push_back(word);
+                return;
+            }
+        }
+        b.push_back(HashEntry(key, word));
+    }
+}
+
+void DictionaryImpl::lookup(string letters, void callback(const string&)) const
+{
+    if (callback == NULL)
+        return;
+
+    removeNonLetters(letters);
+    if (letters.empty())
+        return;
+
+    sort(letters.begin(), letters.end());
+    const vector<HashEntry>& b = m_bucket[hash(letters)];
+    for (size_t k = 0; k < b.size(); k++)
+    {
+        if (b[k].key == letters)
+        {
+            for (size_t m = 0; m < b[k].words.size(); m++)
+                callback(b[k].words[m]);
+            return;
+        }
+    }
+}
+
+size_t DictionaryImpl::hash(const string& s)
+{
+    size_t h = 2166136261;  // Constant from FNV hash function
+    for (size_t k = 0; k < s.size(); k++)
+    {
+        h *= 16777619;  // Constant from FNV hash function
+        h += s[k];
+    }
+    return h % NBUCKETS;
+
+    //   Here's an alternative one that works well for this data:
+    // size_t h = 0;
+    // for (size_t k = 0; k < s.size(); k++)
+    // {
+    //     h = 32 * h + s[k];
+    //     h += h / 65536;
+    // }
+    // return h % NBUCKETS;
+}
+    
+void DictionaryImpl::removeNonLetters(string& s)
+{
+    string::iterator to = s.begin();
+    for (string::const_iterator from = s.begin(); from != s.end(); from++)
+    {
+        if (isalpha(*from))
+        {
+            *to = tolower(*from);
+            to++;
+        }
+    }
+    s.erase(to, s.end());  // chop off everything from "to" to end.
+} 
+
+//******************** Dictionary functions **********************************
+
+// For the most part, these functions simply delegate to DictionaryImpl's
+// functions.
+
+Dictionary::Dictionary()
+{
+    m_impl = new DictionaryImpl;
+}
+
+Dictionary::~Dictionary()
+{
+    delete m_impl;
+}
+
+void Dictionary::insert(const string& word)
+{
+    m_impl->insert(word);
+}
+
+void Dictionary::lookup(const string& letters, 
+                                        void callback(const string&)) const
+{
+    m_impl->lookup(letters, callback);
+}
+

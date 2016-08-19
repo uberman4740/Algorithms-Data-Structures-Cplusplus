@@ -1,0 +1,205 @@
+1. I use a two dimensional char dynamically allocated array to represent my board and to record my shots. When receiving input from the user about the length of the board, I will dynamically create the right amount of spaces for the gameboard. Using a vector
+to hold the ships.
+
+2. I use the same implementation of placing ships from the MediocrePlayer (recursion). 
+The only difference is I use two recursion to randomize my ships by placing it in two separate corners. Instead of clumping it in the top left corner, I clump my ships in the top left and bottom right.
+
+My recommend attack uses four queues to know where to attack next. When I hit a ship, 
+I push the four surrounding squares and if I hit it the correct direction, I continue to 
+follow it. If it fails, the other queues are dequeued until the ship dies. If I hit an extra ship in the process, I will compare the shipLength with the the number of X's that I have hit. If I have hit an extra square, I will search surrounding areas of the extra X until the ship is dead.
+
+/**** Game Pseudocode ****/
+rows()
+{
+	return the number of rows;
+}
+
+cols()
+{
+	return the number of columns
+}
+
+checkShipRedun(char)
+{
+	check the vector if the symbol already exists in the board
+
+	return false is does not exist;
+}
+
+addShip(length, symbol, name)
+{
+	check if correct length, symbol, and if already exists
+	add ship otherwise;
+}
+
+nShips()
+{
+	return the number of ships in vector
+}
+
+shipSymbol(shipID)
+{
+	return the ship symbol by calling iterate to search for ship with ID
+}
+
+shipName(shipID)
+{
+	return the ship name by calling iterate to search for ship with ID
+}
+
+vector<Ship>::const_iterator iterate(vector, shipId)
+{
+	use iterator to find the shipId in the vector
+	return iterator;
+}
+
+/**** Board Pseudocode ****/
+BoardImpl(Game)
+{
+	allocate memory for the 2-d board.
+}
+
+clear()
+{
+	initialize each square in the 2-d array to '.'
+}
+
+unblock()
+{
+	change each 'X' to '.'
+}
+
+placeShip(Point, shipId, direction)
+{
+	check conditions 
+		valid ShipID
+		valid direction
+		valid Point
+		if ship will fit on board
+		No redundandcy
+
+	if conditions pass,
+		place ship on board with the symbol
+}
+
+unplaceShip(Point, shipId, direction)
+{
+	check conditions
+		-valid shipID
+		-valid direction
+		-if ship will fit on board
+
+	if conditions pass
+		remove ship from the board by erasing symbol
+}
+
+display(bool)
+{
+	display the board with '.' and 'X' if bool == true
+	else display with everything.
+}
+
+allShipsDestroyed()
+{
+	check the board for all '.', 'o', 'X';
+	if the board doesnt contain only those elements, then return false
+}
+
+
+/**** Player Implementation ****/
+
+//Human
+
+recommendAttack()
+{
+	ask use to enter two integers;
+	return the point;
+}
+
+recordAttackResult()
+{
+	//No implementation
+}
+
+placeShips(Board)
+{
+	while(direction != H || V)
+	{
+		ask for direction and place ship with the users correct Point.
+	}
+}
+
+//Mediocre
+
+MediocrePlayer()
+{
+	allocate 2-d array
+}
+
+placeShips()
+{
+	call auxiliary placingShips()
+}
+
+placingShips(Board, Point, NumberOfShips)
+{
+	if(number of ships ==0)
+		return true;
+	if(reached end of board)
+		return false;
+
+	place ship horizontally
+		-if fails, place vertically
+			-if fails, go to next position and redo from top.
+}
+
+recordAttackResult()
+{
+	is shothit
+		-mark in map
+		-create the 4-sided + sign if shipnotdestroyed
+}
+
+recommendAttack()
+{
+	return random point if in state 1
+	return a point corresponding to + if in state 2
+}
+
+//Good
+
+GoodPlayer()
+{
+	initialize board and counters
+}
+
+placeShips(board)
+{
+	call two recursion functions in opposite directions to place ship
+}
+
+placingShips && placingShipsReverse()
+{
+	if not reached end of board and number of ships !=0
+		-place ship horiziontally or vertically until all ships placed
+}
+
+recordAttackResult()
+{
+	count number of X's and length of ships killed.
+	if in state2- 
+		add all 4 surrounding positions.
+	
+	check hit direction relative to first hit and enqueue accordingly
+
+	if ship killed
+		-dequeue all queues.
+}
+
+recommendAttack()
+{
+	if state1
+		randomly attack or find a lingering X and check surrounding
+	else
+		dequeue accordingly to kill ship.
+}
